@@ -82,6 +82,26 @@ TEST_CASE("message consumption", "[consumer]") {
     CHECK(runner.get_messages().back().get_offset() + 1 == high);
 }
 
+#if RD_KAFKA_VERSION >= RD_KAFKA_COOPERATIVE_REBALANCE_SUPPORT_VERSION
+TEST_CASE("asynchronous seek", "[consumer][seek]")
+{
+    Consumer consumer({{"group.id", "async-seek"}, {"test.mock.num.brokers", "1"}});
+    const TopicPartition assigned("assigned", 0, 0);
+    consumer.assign({assigned});
+    REQUIRE_NOTHROW(consumer.seek({assigned}, milliseconds(0)));
+
+    try
+    {
+        consumer.seek({assigned, TopicPartition("unassigned", 0, 0)}, milliseconds(0));
+        FAIL("Expected an error for the unassigned partition");
+    }
+    catch (const HandleException& error)
+    {
+        CHECK(error.get_error() == RD_KAFKA_RESP_ERR__UNKNOWN_PARTITION);
+    }
+}
+#endif
+
 TEST_CASE("consumer rebalance", "[consumer]") {
     TopicPartitionList assignment1;
     TopicPartitionList assignment2;

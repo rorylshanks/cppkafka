@@ -196,6 +196,7 @@ public:
      */
     void unassign();
 
+#if RD_KAFKA_VERSION >= RD_KAFKA_COOPERATIVE_REBALANCE_SUPPORT_VERSION
     /**
      * \brief Adds the topic/partitions to the current assignment
      *
@@ -215,7 +216,8 @@ public:
      *
      * This translates into a call to rd_kafka_seek_partitions. The topic/partitions must be
      * assigned and already fetching. Waits up to the timeout for the fetcher to discard the
-     * messages it has prefetched from the old position.
+     * messages it has prefetched from the old position. A zero timeout queues the seek
+     * asynchronously and reports any immediate errors.
      */
     void seek(const TopicPartitionList& topic_partitions, std::chrono::milliseconds timeout);
 
@@ -227,6 +229,7 @@ public:
      * \return "NONE", "EAGER", "COOPERATIVE", or an empty string if the consumer has no group
      */
     std::string get_rebalance_protocol() const;
+#endif
     
     /**
      * \brief Pauses all consumption

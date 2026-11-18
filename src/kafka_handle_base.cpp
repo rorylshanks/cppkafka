@@ -281,6 +281,7 @@ void KafkaHandleBase::check_error(rd_kafka_resp_err_t error,
     }
 }
 
+#if RD_KAFKA_VERSION >= RD_KAFKA_COOPERATIVE_REBALANCE_SUPPORT_VERSION
 void KafkaHandleBase::check_error(rd_kafka_error_t* error) const {
     if (error) {
         const rd_kafka_resp_err_t code = rd_kafka_error_code(error);
@@ -288,6 +289,7 @@ void KafkaHandleBase::check_error(rd_kafka_error_t* error) const {
         throw HandleException(code);
     }
 }
+#endif
 
 rd_kafka_conf_t* KafkaHandleBase::get_configuration_handle() {
     return config_.get_handle();
